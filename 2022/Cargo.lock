@@ -3,9 +3,17 @@
 version = 3
 
 [[package]]
-name = "b"
+name = "a01"
 version = "0.1.0"
 
 [[package]]
-name = "day1a"
+name = "a02"
+version = "0.1.0"
+
+[[package]]
+name = "b01"
+version = "0.1.0"
+
+[[package]]
+name = "b02"
 version = "0.1.0"
