@@ -12,23 +12,24 @@ fn val(x: u8) -> usize {
 
 fn main() {
     let mut sum = 0;
-    let mut sets = vec![];
+    let mut set = HashSet::new();
+    let mut i = 0;
     for line in std::io::stdin().lines() {
         if let Ok(line) = line {
-            sets.push(
-                line.as_bytes()
-                    .into_iter()
-                    .cloned()
-                    .collect::<HashSet<u8>>(),
-            );
-            if sets.len() == 3 {
-                let mut overlapping: HashSet<u8> =
-                    sets[0].intersection(&sets[1]).cloned().collect();
-                overlapping = overlapping.intersection(&sets[2]).cloned().collect();
-                let overlap = overlapping.iter().next().unwrap();
-                println!("{}", *overlap as char);
-                sum += val(*overlap);
-                sets = vec![];
+            if i == 0 {
+                set = line.as_bytes().into_iter().cloned().collect();
+            }
+            for c in line.as_bytes() {
+                if !set.contains(c) {
+                    set.remove(c);
+                }
+            }
+            if i == 2 {
+                assert_eq!(set.len(), 1);
+                let overlap = *set.iter().next().unwrap();
+                println!("{}", overlap as char);
+                sum += val(overlap);
+                i = 0;
             }
         }
     }
