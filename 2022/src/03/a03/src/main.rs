@@ -5,10 +5,10 @@ fn main() {
             let sz = line.as_bytes().len() / 2;
             let mut rucksack = line.as_bytes().iter().cloned();
             let mut first = std::collections::HashSet::new();
-            for i in 0..sz {
+            for _ in 0..sz {
                 first.insert(rucksack.next().unwrap());
             }
-            for i in 0..sz {
+            for _ in 0..sz {
                 let x = rucksack.next().unwrap();
                 if first.contains(&x) {
                     println!("{}", x as char);
