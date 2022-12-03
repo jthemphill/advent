@@ -9,9 +9,13 @@ fn main() {
             if let Ok(i) = line.parse::<i32>() {
                 cur += i;
             } else {
-                best.push(Reverse(cur));
-                if best.len() > 3 {
-                    best.pop();
+                if best.len() < 3 {
+                    best.push(Reverse(cur));
+                } else {
+                    let mut x = best.peek_mut().unwrap();
+                    if *x > Reverse(cur) {
+                        *x = Reverse(cur);
+                    }
                 }
                 cur = 0;
             }
