@@ -34,6 +34,10 @@ name = "a07"
 version = "0.1.0"
 
 [[package]]
+name = "a08"
+version = "0.1.0"
+
+[[package]]
 name = "aho-corasick"
 version = "0.7.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -71,6 +75,10 @@ version = "0.1.0"
 
 [[package]]
 name = "b07"
+version = "0.1.0"
+
+[[package]]
+name = "b08"
 version = "0.1.0"
 
 [[package]]
