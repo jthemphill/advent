@@ -2,7 +2,7 @@ use rayon::prelude::*;
 use regex::Regex;
 use std::collections::{BinaryHeap, HashSet};
 
-const MAX_TIME: usize = 24;
+const MAX_TIME: usize = 32;
 
 #[derive(Copy, Clone, Default, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 struct Goods {
@@ -178,14 +178,15 @@ fn main() {
             });
         }
     }
-    let total_quality: usize = blueprints
+    let multiplied_geodes: usize = blueprints
         .par_iter()
+        .take(3)
         .map(|bp| {
             let num_geodes = evaluate(bp);
             let quality = bp.id * num_geodes;
             println!("Blueprint {}: {} (quality {})", bp.id, num_geodes, quality);
-            quality
+            num_geodes
         })
-        .sum();
-    println!("Total quality: {}", total_quality);
+        .product();
+    println!("Multiplied together: {}", multiplied_geodes);
 }
