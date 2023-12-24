@@ -5,7 +5,6 @@ enum Card {
     Ace = 14,
     King = 13,
     Queen = 12,
-    Jack = 11,
     Ten = 10,
     Nine = 9,
     Eight = 8,
@@ -15,6 +14,7 @@ enum Card {
     Four = 4,
     Three = 3,
     Two = 2,
+    Joker = 0,
 }
 
 impl Card {
@@ -23,7 +23,6 @@ impl Card {
             b'A' => Card::Ace,
             b'K' => Card::King,
             b'Q' => Card::Queen,
-            b'J' => Card::Jack,
             b'T' => Card::Ten,
             b'9' => Card::Nine,
             b'8' => Card::Eight,
@@ -33,6 +32,7 @@ impl Card {
             b'4' => Card::Four,
             b'3' => Card::Three,
             b'2' => Card::Two,
+            b'J' => Card::Joker,
             _ => panic!("{} is not a card", byte),
         }
     }
@@ -41,7 +41,6 @@ impl Card {
             Card::Ace => b'A',
             Card::King => b'K',
             Card::Queen => b'Q',
-            Card::Jack => b'J',
             Card::Ten => b'T',
             Card::Nine => b'9',
             Card::Eight => b'8',
@@ -51,6 +50,7 @@ impl Card {
             Card::Four => b'4',
             Card::Three => b'3',
             Card::Two => b'2',
+            Card::Joker => b'J',
         }
     }
 
@@ -114,13 +114,32 @@ struct Hand {
 
 fn hand_type(cards: &[Card; 5]) -> HandType {
     let mut counter: HashMap<Card, usize> = HashMap::new();
+    let mut num_jokers = 0;
     for &card in cards {
         *counter.entry(card).or_insert(0) += 1;
+        if card == Card::Joker {
+            num_jokers += 1;
+        }
     }
+
+    // Sort highest count first
+    let mut card_counts: Vec<(Card, usize)> = counter.into_iter().collect();
+    card_counts
+        .sort_by(|(card1, count1), (card2, count2)| count2.cmp(&count1).then(card2.cmp(&card1)));
+
     let mut num_three_of_a_kind = 0;
     let mut num_two_of_a_kind = 0;
-    for (_, count) in counter.iter() {
-        match count {
+    for (card, count) in card_counts {
+        // Ignore Jokers unless the whole hand is Jokers
+        if card == Card::Joker {
+            if count == 5 {
+                return HandType::FiveOfAKind;
+            } else {
+                continue;
+            }
+        }
+        assert!(count + num_jokers <= 5);
+        match count + num_jokers {
             5 => {
                 return HandType::FiveOfAKind;
             }
@@ -128,9 +147,11 @@ fn hand_type(cards: &[Card; 5]) -> HandType {
                 return HandType::FourOfAKind;
             }
             3 => {
+                num_jokers -= 3 - count;
                 num_three_of_a_kind += 1;
             }
             2 => {
+                num_jokers -= 2 - count;
                 num_two_of_a_kind += 1;
             }
             _ => {}
@@ -182,7 +203,7 @@ fn main() {
         let rank = i + 1;
         let hand_score = rank * hand.bid;
         println!(
-            "Rank {}: {:?} {} {} = {}",
+            "Rank {:4}: {:12?} {:5} {:3} = {}",
             rank,
             hand_type(&hand.cards),
             as_string(&hand.cards),
