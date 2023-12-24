@@ -23,6 +23,10 @@ name = "a05"
 version = "0.1.0"
 
 [[package]]
+name = "a06"
+version = "0.1.0"
+
+[[package]]
 name = "b01"
 version = "0.1.0"
 
@@ -40,4 +44,8 @@ version = "0.1.0"
 
 [[package]]
 name = "b05"
+version = "0.1.0"
+
+[[package]]
+name = "b06"
 version = "0.1.0"
