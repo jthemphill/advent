@@ -8,9 +8,10 @@ enum ParsePhase {
     HumidityToLocation,
 }
 
+#[derive(Debug, Eq, Ord, PartialEq, PartialOrd)]
 struct Range {
-    dest: usize,
     src: usize,
+    dest: usize,
     len: usize,
 }
 
@@ -71,7 +72,7 @@ fn main() {
         let dest = nums.next().unwrap();
         let src = nums.next().unwrap();
         let len = nums.next().unwrap();
-        let range = Range { dest, src, len };
+        let range = Range { src, dest, len };
         match phase {
             ParsePhase::SeedToSoil => seed_to_soil.push(range),
             ParsePhase::SoilToFertilizer => soil_to_fertilizer.push(range),
@@ -82,6 +83,16 @@ fn main() {
             ParsePhase::HumidityToLocation => humidity_to_location.push(range),
         };
     }
+
+    seed_to_soil.sort();
+    soil_to_fertilizer.sort();
+    fertilizer_to_water.sort();
+    water_to_light.sort();
+    light_to_temperature.sort();
+    temperature_to_humidity.sort();
+    humidity_to_location.sort();
+
+    let mut soils = vec![];
 
     let get_locations = |seeds: Vec<usize>| -> Vec<usize> {
         macro_rules! lookup {
