@@ -38,6 +38,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "a09"
+version = "0.1.0"
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -80,6 +84,10 @@ version = "0.1.0"
 dependencies = [
  "regex",
 ]
+
+[[package]]
+name = "b09"
+version = "0.1.0"
 
 [[package]]
 name = "memchr"
