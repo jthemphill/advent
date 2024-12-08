@@ -34,6 +34,10 @@ name = "a07"
 version = "0.1.0"
 
 [[package]]
+name = "a08"
+version = "0.1.0"
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -75,6 +79,10 @@ version = "0.1.0"
 dependencies = [
  "rayon",
 ]
+
+[[package]]
+name = "b08"
+version = "0.1.0"
 
 [[package]]
 name = "crossbeam-deque"
