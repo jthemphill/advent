@@ -1,6 +1,6 @@
 use std::{
     cmp::Ordering,
-    collections::{BinaryHeap, HashSet},
+    collections::{BinaryHeap, HashMap, HashSet},
     io::Read,
 };
 
@@ -94,49 +94,20 @@ struct State {
     dir: Dir,
     path: Vec<Pos>,
     score: usize,
-    estimate: usize,
 }
 
 impl State {
-    fn new(pos: Pos, dir: Dir, path: Vec<Pos>, score: usize, end: Pos) -> Self {
-        let estimate = score + h(pos, end, dir);
+    fn new(pos: Pos, dir: Dir, path: Vec<Pos>, score: usize) -> Self {
         Self {
             pos,
             dir,
             path,
             score,
-            estimate,
         }
     }
 }
 
 impl Ord for State {
-    fn cmp(&self, other: &Self) -> Ordering {
-        // Notice that we flip the ordering on costs.
-        // In case of a tie we compare positions - this step is necessary
-        // to make implementations of `PartialEq` and `Ord` consistent.
-        other
-            .estimate
-            .cmp(&self.estimate)
-            .then_with(|| self.score.cmp(&other.score))
-            .then_with(|| self.pos.cmp(&other.pos))
-    }
-}
-
-impl PartialOrd for State {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-struct HState {
-    pos: Pos,
-    dir: Dir,
-    score: usize,
-}
-
-impl Ord for HState {
     fn cmp(&self, other: &Self) -> Ordering {
         // Notice that we flip the ordering on costs.
         // In case of a tie we compare positions - this step is necessary
@@ -148,87 +119,35 @@ impl Ord for HState {
     }
 }
 
-impl PartialOrd for HState {
+impl PartialOrd for State {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-fn h(start: Pos, end: Pos, dir: Dir) -> usize {
-    let mut seen = HashSet::new();
-    let mut frontier = BinaryHeap::new();
-    frontier.push(HState {
-        pos: start,
-        dir,
-        score: 0,
-    });
-
-    while let Some(state) = frontier.pop() {
-        if state.pos == end {
-            return state.score;
-        }
-        if !seen.insert((state.pos, state.dir)) {
-            continue;
-        }
-        for dir in [state.dir.cw(), state.dir.ccw()] {
-            frontier.push(HState {
-                pos: state.pos,
-                dir,
-                score: state.score + 1000,
-            });
-        }
-        let (mut x1, mut y1) = state.pos;
-        let mut score = state.score;
-        let (x2, y2) = end;
-        match state.dir {
-            Dir::N => {
-                if y1 > y2 {
-                    score += y1 - y2;
-                    y1 = y2;
-                }
-            }
-            Dir::E => {
-                if x1 < x2 {
-                    score += x2 - x1;
-                    x1 = x2;
-                }
-            }
-            Dir::S => {
-                if y1 < y2 {
-                    score += y2 - y1;
-                    y1 = y2;
-                }
-            }
-            Dir::W => {
-                if x1 > x2 {
-                    score += x1 - x2;
-                    x1 = x2;
-                }
-            }
-        };
-        frontier.push(HState {
-            pos: (x1, y1),
-            dir,
-            score,
-        });
-    }
-    panic!("panik");
-}
-
 fn a_star(grid: &Grid) -> (usize, HashSet<Pos>) {
     let mut frontier = BinaryHeap::new();
+    let mut seen = HashMap::new();
 
     let start = grid.start();
     let end = grid.end();
 
-    frontier.push(State::new(start, Dir::E, vec![start], 0, end));
+    frontier.push(State::new(start, Dir::E, vec![start], 0));
 
     let mut best_score = std::usize::MAX;
     let mut seats = HashSet::new();
     while let Some(state) = frontier.pop() {
-        assert!(state.estimate >= state.score);
-        if state.estimate > best_score || grid.get(state.pos) == b'#' {
+        if grid.get(state.pos) == b'#' {
             continue;
+        }
+
+        let score_at_state = seen
+            .entry((state.pos, state.dir))
+            .or_insert(state.score.min(best_score));
+        if state.score > *score_at_state {
+            continue;
+        } else {
+            *score_at_state = state.score;
         }
 
         if state.pos == end {
@@ -236,6 +155,7 @@ fn a_star(grid: &Grid) -> (usize, HashSet<Pos>) {
             for &seat in &state.path {
                 seats.insert(seat);
             }
+            println!("{} {} {}", frontier.len(), seen.len(), seats.len());
             continue;
         }
 
@@ -251,7 +171,6 @@ fn a_star(grid: &Grid) -> (usize, HashSet<Pos>) {
                 dir,
                 state.path.clone(),
                 state.score + 1000,
-                end,
             ));
         }
         let mut forward_path = state.path;
@@ -261,7 +180,6 @@ fn a_star(grid: &Grid) -> (usize, HashSet<Pos>) {
             state.dir,
             forward_path,
             state.score + 1,
-            end,
         ));
     }
     (best_score, seats)
