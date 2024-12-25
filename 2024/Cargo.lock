@@ -107,6 +107,13 @@ name = "a23"
 version = "0.1.0"
 
 [[package]]
+name = "a24"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -221,6 +228,13 @@ version = "0.1.0"
 [[package]]
 name = "b23"
 version = "0.1.0"
+
+[[package]]
+name = "b24"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
 
 [[package]]
 name = "crossbeam-deque"
