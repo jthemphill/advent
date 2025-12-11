@@ -1,4 +1,24 @@
 [workspace]
 
-members = ["src/*/*"]
+members = [
+    "src/01/a01",
+    "src/01/b01",
+    "src/02/a02",
+    "src/02/b02",
+    "src/03/a03",
+    "src/03/b03",
+    "src/04/a04",
+    "src/04/b04",
+    "src/05/a05",
+    "src/05/b05",
+    "src/06/a06",
+    "src/06/b06",
+    "src/07/a07",
+    "src/07/b07",
+    "src/08/a08",
+    "src/08/b08",
+    "src/09/a09",
+    "src/09/b09",
+    "src/10/a10",
+]
 resolver = "2"
