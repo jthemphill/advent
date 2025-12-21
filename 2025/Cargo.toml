@@ -22,6 +22,5 @@ members = [
     "src/10/a10",
     "src/11/a11",
     "src/11/b11",
-    "src/12/a12",
 ]
 resolver = "2"
