@@ -1,80 +1,31 @@
-use std::collections::{BinaryHeap, HashSet};
 use std::io::BufRead;
 
-#[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
-struct BatteryUsage {
-    joltage: i64,
-    num_remaining: usize,
-    last_index: usize,
-}
-
-impl BatteryUsage {
-    fn optimistic_joltage(&self) -> i64 {
-        self.joltage + 10_i64.pow(self.num_remaining as u32) - 1
-    }
-}
-
-impl PartialOrd for BatteryUsage {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for BatteryUsage {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.optimistic_joltage()
-            .cmp(&other.optimistic_joltage())
-            .then(other.last_index.cmp(&self.last_index))
-    }
-}
+const MAX_STACK_SIZE: usize = 12;
 
 fn max_joltage(batteries: &[i64]) -> i64 {
-    let mut seen = HashSet::new();
+    let mut stack = Vec::with_capacity(MAX_STACK_SIZE);
 
-    let mut frontier = BinaryHeap::new();
-    frontier.push(BatteryUsage {
-        joltage: 0,
-        num_remaining: 12,
-        last_index: 0,
-    });
-    frontier.push(BatteryUsage {
-        joltage: batteries[0] * (10_i64.pow(11)),
-        num_remaining: 11,
-        last_index: 0,
-    });
-
-    while let Some(usage) = frontier.pop() {
-        if usage.last_index + 1 == batteries.len() && usage.num_remaining == 0 {
-            return usage.joltage;
-        }
-
-        if seen.get(&usage).is_some() {
-            continue;
-        } else {
-            seen.insert(usage.clone());
-        }
-
-        for i in (usage.last_index + 1)..batteries.len() {
-            if usage.num_remaining > 0
-                && usage.last_index + usage.num_remaining - 1 < batteries.len()
+    for i in 0..batteries.len() {
+        while let Some(last_battery) = stack.last() {
+            if *last_battery >= batteries[i] || i + MAX_STACK_SIZE - stack.len() >= batteries.len()
             {
-                frontier.push(BatteryUsage {
-                    joltage: usage.joltage
-                        + batteries[i] * 10_i64.pow(usage.num_remaining as u32 - 1),
-                    num_remaining: usage.num_remaining - 1,
-                    last_index: i,
-                });
+                break;
+            } else {
+                stack.pop();
             }
-            if usage.last_index + usage.num_remaining < batteries.len() {
-                frontier.push(BatteryUsage {
-                    joltage: usage.joltage,
-                    num_remaining: usage.num_remaining,
-                    last_index: i,
-                });
-            }
+        }
+        if stack.len() < MAX_STACK_SIZE {
+            stack.push(batteries[i]);
         }
     }
-    0
+
+    assert_eq!(stack.len(), MAX_STACK_SIZE);
+    let mut joltage = 0;
+    for battery in stack {
+        joltage *= 10;
+        joltage += battery;
+    }
+    joltage
 }
 
 fn parse_batteries(battery_str: &str) -> Vec<i64> {
